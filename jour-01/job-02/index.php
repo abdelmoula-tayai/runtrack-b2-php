@@ -1,9 +1,9 @@
 <?php
 
-function my_str_search(string $haystack, string $needle): int {
-    return substr_count($haystack, $needle);
+function my_reverse_string(string $strinh): string {
+    return strrev($strinh);
 }
 
-echo my_str_search('La Plateforme', 'a') . "\n";
+echo my_reverse_string('La Plateforme')
 
 ?>
