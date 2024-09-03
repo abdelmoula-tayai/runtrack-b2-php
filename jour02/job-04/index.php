@@ -1,35 +1,30 @@
 <?php
 
-    function insert_student(int $grade_id, string $email, string $fullname, DateTime $birthdate, string $gender): void {
+    function find_all_student(): array {
         $conn = new PDO("mysql:host=localhost;dbname=ip_official", "root" , "");
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $stmt = $conn->prepare("INSERT INTO student (grade_id, email, fullname, birthdate, gender) VALUES (:grade_id, :email, :fullname, :birthdate, :gender)");
-        $stmt->bindValue(":grade_id", $grade_id);
-        $stmt->bindValue(":email", $email);
-        $stmt->bindValue(":fullname", $fullname);
-        $stmt->bindValue(":birthdate", $birthdate->format("Y-m-d"));
-        $stmt->bindValue("gender", $gender);
+        $stmt = $conn->prepare("
+            SELECT student.email, student.fullname, grade.name as grade_name
+            FROM student
+            JOIN grade ON student.grade_id = grade.id");
         $stmt->execute();
+        $result = $stmt->fetchALL(PDO::FETCH_ASSOC);
+        return $result;
     }
 
-    $grade_id = isset($_GET["input-grade-id"]) ? $_GET["input-grade-id"] : '';
-    $email = isset($_GET["input-email"]) ? $_GET["input-email"] : '';
-    $fullname = isset($_GET["input-fullname"]) ? $_GET["input-fullname"] : '';
-    $birthdate = isset($_GET["input-birthdate"]) ? $_GET["input-birthdate"] : '';
-    $gender = isset($_GET["input-gender"]) ? $_GET["input-gender"] : '';
+    $result = find_all_student();
 
-    $result = [];
+    if (count($result) > 0) {
+        echo "<table border = 1>";
+        echo "<tr>  <th>email</th> <th>fullname</th> <th>grade</th>", "</tr>";
 
-    if ($grade_id !== '' && $email !== '' && $fullname !== '' && $birthdate !== '' && $gender !== '') {
-        $result = insert_student($grade_id, $email, $fullname, new DateTime($birthdate), $gender);
+        foreach ($result as $row) {
+            echo "<tr>";
+            echo "<td>" . $row["email"] . "</td>";
+            echo "<td>" . $row["fullname"] . "</td>";
+            echo "<td>" . $row["grade_name"] . "</td>";
+            echo "</tr>";
+        }
     }
 
-    echo "<form method='get'>"; 
-    echo "<input type = 'text' name = 'input-grade-id' placeholder = 'grade_id'>";
-    echo "<input type = 'text' name = 'input-email' placeholder = 'email'>";
-    echo "<input type = 'text' name = 'input-fullname' placeholder = 'fullname'>";
-    echo "<input type = 'text' name = 'input-birthdate' placeholder = 'birthdate'>";
-    echo "<input type = 'text' name = 'input-gender' placeholder = 'gender'>";
-    echo "<input type = 'submit' value = 'Submit'>";
-    echo "</form>";
 ?>
